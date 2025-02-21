@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Your one-stop destination for free online tools. Compress images, convert PDFs, and more!">
+  <meta name="keywords" content="online tools, image tools, PDF tools, compress images, convert PDFs">
+  <meta name="author" content="Your Name">
+  <title>Online Tools - Free Image & PDF Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-6 shadow-md text-center">
+    <h1 class="text-4xl font-bold">Online Tools</h1>
+    <p class="text-lg">Your one-stop destination for free online tools</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Image Resizing Tool -->
+    <section class="bg-white p-6 rounded-lg shadow-md text-center mb-8">
+      <h2 class="text-3xl font-semibold text-green-600">Resize Your Image</h2>
+      <label for="image-input"
+        class="cursor-pointer bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Upload
+        Image</label>
+      <input type="file" id="image-input" accept="image/*" class="hidden">
+      <div id="image-preview" class="mt-4"></div>
+      <button id="delete-btn"
+        class="bg-red-500 text-white px-4 py-2 rounded-lg mt-2 hidden hover:bg-red-700 transition">Delete Image</button>
+      <div class="mt-4">
+        <label for="width-input" class="block">Width: <span id="width-value">100</span>px</label>
+        <input type="number" id="width-input" min="1" value="100" class="w-full">
+      </div>
+      <div class="mt-4">
+        <label for="height-input" class="block">Height: <span id="height-value">100</span>px</label>
+        <input type="number" id="height-input" min="1" value="100" class="w-full">
+      </div>
+      <button id="resize-btn"
+        class="bg-blue-500 text-white px-6 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Resize Image</button>
+      <div id="image-container" class="mt-4"></div>
+      <a id="download-link" style="display:none;"
+        class="bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Download
+        Resized Image</a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white text-center py-6 mt-8">
+    <p>&copy; 2023 Online Tools. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('width-input').addEventListener('input', function () {
+      document.getElementById('width-value').textContent = this.value;
+    });
+
+    document.getElementById('height-input').addEventListener('input', function () {
+      document.getElementById('height-value').textContent = this.value;
+    });
+
+    document.getElementById('resize-btn').addEventListener('click', function () {
+      const fileInput = document.getElementById('image-input');
+      const width = parseInt(document.getElementById('width-input').value);
+      const height = parseInt(document.getElementById('height-input').value);
+
+      if (fileInput.files.length === 0) {
+        alert('Please select an image to resize.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const img = new Image();
+        img.src = e.target.result;
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+
+          canvas.width = width;
+          canvas.height = height;
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(function (blob) {
+            const resizedImageUrl = URL.createObjectURL(blob);
+            const imageContainer = document.getElementById('image-container');
+            imageContainer.innerHTML = `<img src="${resizedImageUrl}" alt="Resized Image" class="mt-4 mx-auto rounded-lg shadow-md">`;
+
+            const downloadLink = document.getElementById('download-link');
+            downloadLink.href = resizedImageUrl;
+            downloadLink.download = `resized-image-${width}x${height}.jpg`;
+            downloadLink.style.display = 'block';
+          }, 'image/jpeg');
+        };
+      };
+
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+
+</html>

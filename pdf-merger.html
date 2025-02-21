@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Your one-stop destination for free online tools. Compress images, convert PDFs, and more!">
+  <meta name="keywords" content="online tools, image tools, PDF tools, compress images, convert PDFs">
+  <meta name="author" content="Your Name">
+  <title>Online Tools - Free Image & PDF Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-6 shadow-md text-center">
+    <h1 class="text-4xl font-bold">Online Tools</h1>
+    <p class="text-lg">Your one-stop destination for free online tools</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- PDF Merger Tool -->
+    <section class="bg-white p-6 rounded-lg shadow-md text-center mb-8">
+      <h2 class="text-3xl font-semibold text-green-600">Merge Your PDFs</h2>
+      <label for="pdf-input"
+        class="cursor-pointer bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Upload
+        PDFs</label>
+      <input type="file" id="pdf-input" accept="application/pdf" multiple class="hidden">
+      <div id="pdf-list" class="mt-4"></div>
+      <button id="merge-btn" class="bg-blue-500 text-white px-6 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Merge
+        PDFs</button>
+      <a id="download-link" style="display:none;"
+        class="bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Download
+        Merged PDF</a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white text-center py-6 mt-8">
+    <p>&copy; 2023 Online Tools. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('pdf-input').addEventListener('change', function () {
+      const pdfList = document.getElementById('pdf-list');
+      pdfList.innerHTML = '';
+      for (const file of this.files) {
+        const listItem = document.createElement('div');
+        listItem.textContent = file.name;
+        listItem.className = 'mt-2';
+        pdfList.appendChild(listItem);
+      }
+    });
+
+    document.getElementById('merge-btn').addEventListener('click', async function () {
+      const fileInput = document.getElementById('pdf-input');
+      if (fileInput.files.length === 0) {
+        alert('Please select PDFs to merge.');
+        return;
+      }
+
+      const pdfLib = window.PDFLib;
+      const mergedPdf = await pdfLib.PDFDocument.create();
+
+      for (const file of fileInput.files) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfLib.PDFDocument.load(arrayBuffer);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach(page => mergedPdf.addPage(page));
+      }
+
+      const mergedPdfBytes = await mergedPdf.save();
+      const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+      const mergedPdfUrl = URL.createObjectURL(blob);
+
+      const downloadLink = document.getElementById('download-link');
+      downloadLink.href = mergedPdfUrl;
+      downloadLink.download = 'merged.pdf';
+      downloadLink.style.display = 'block';
+    });
+  </script>
+</body>
+
+</html>
