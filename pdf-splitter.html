@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Your one-stop destination for free online tools. Compress images, convert PDFs, and more!">
+  <meta name="keywords" content="online tools, image tools, PDF tools, compress images, convert PDFs">
+  <meta name="author" content="Your Name">
+  <title>Online Tools - Free Image & PDF Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-6 shadow-md text-center">
+    <h1 class="text-4xl font-bold">Online Tools</h1>
+    <p class="text-lg">Your one-stop destination for free online tools</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- PDF Splitter Tool -->
+    <section class="bg-white p-6 rounded-lg shadow-md text-center mb-8">
+      <h2 class="text-3xl font-semibold text-green-600">Split PDF</h2>
+      <label for="pdf-input"
+        class="cursor-pointer bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Upload
+        PDF</label>
+      <input type="file" id="pdf-input" accept="application/pdf" class="hidden">
+      <div id="pdf-preview" class="mt-4"></div>
+      <button id="split-btn" class="bg-blue-500 text-white px-6 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Split
+        PDF</button>
+      <div id="split-list" class="mt-4"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white text-center py-6 mt-8">
+    <p>&copy; 2023 Online Tools. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('pdf-input').addEventListener('change', async function () {
+      const file = this.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      const pdfPreview = document.getElementById('pdf-preview');
+      pdfPreview.innerHTML = '';
+
+      for (let i = 0; i < pdfDoc.getPageCount(); i++) {
+        const page = document.createElement('div');
+        page.textContent = `Page ${i + 1}`;
+        page.className = 'mt-2 cursor-pointer bg-gray-200 p-2 rounded-lg';
+        page.dataset.pageIndex = i;
+        page.addEventListener('click', function () {
+          this.classList.toggle('bg-blue-200');
+        });
+        pdfPreview.appendChild(page);
+      }
+    });
+
+    document.getElementById('split-btn').addEventListener('click', async function () {
+      const fileInput = document.getElementById('pdf-input');
+      if (fileInput.files.length === 0) {
+        alert('Please select a PDF to split.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      const splitList = document.getElementById('split-list');
+      splitList.innerHTML = '';
+
+      const selectedPages = Array.from(document.querySelectorAll('#pdf-preview .bg-blue-200'))
+        .map(page => parseInt(page.dataset.pageIndex));
+
+      if (selectedPages.length === 0) {
+        alert('Please select at least one page to split.');
+        return;
+      }
+
+      for (const pageIndex of selectedPages) {
+        const newPdfDoc = await PDFLib.PDFDocument.create();
+        const [copiedPage] = await newPdfDoc.copyPages(pdfDoc, [pageIndex]);
+        newPdfDoc.addPage(copiedPage);
+
+        const pdfBytes = await newPdfDoc.save();
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = `page-${pageIndex + 1}.pdf`;
+        downloadLink.textContent = `Download Page ${pageIndex + 1}`;
+        downloadLink.className = 'bg-blue-500 text-white px-4 py-2 rounded-lg mt-2 inline-block hover:bg-blue-700 transition';
+        splitList.appendChild(downloadLink);
+      }
+
+      // Remove the PDF input and preview after splitting
+      fileInput.value = '';
+      document.getElementById('pdf-preview').innerHTML = '';
+    });
+  </script>
+</body>
+
+</html>

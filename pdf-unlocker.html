@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="  " content=" Your one-stop destination for free online tools. Unlock PDFs, compress images, convert PDFs,
+    and more!">
+  <meta name="keywords" content="online tools, PDF tools, unlock PDFs, compress images, convert PDFs">
+  <meta name="author" content="Your Name">
+  <title>Online Tools - Free PDF Unlocker</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-6 shadow-md text-center">
+    <h1 class="text-4xl font-bold">Online Tools</h1>
+    <p class="text-lg">Your one-stop destination for free online tools</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- PDF Unlocking Tool -->
+    <section class="bg-white p-6 rounded-lg shadow-md text-center mb-8">
+      <h2 class="text-3xl font-semibold text-green-600">Unlock Your PDF</h2>
+      <label for="pdf-input"
+        class="cursor-pointer bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Upload
+        PDF</label>
+      <input type="file" id="pdf-input" accept="application/pdf" class="hidden">
+      <div id="pdf-preview" class="mt-4"></div>
+      <button id="unlock-btn"
+        class="bg-blue-500 text-white px-6 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Unlock PDF</button>
+      <a id="download-link" style="display:none;"
+        class="bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Download
+        Unlocked PDF</a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white text-center py-6 mt-8">
+    <p>&copy; 2023 Online Tools. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('unlock-btn').addEventListener('click', function () {
+      const fileInput = document.getElementById('pdf-input');
+
+      if (fileInput.files.length === 0) {
+        alert('Please select a PDF to unlock.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        const pdfData = e.target.result;
+
+        // Assuming you have a server-side endpoint to handle PDF unlocking
+        fetch('/unlock-pdf', {
+          method: 'POST',
+          body: pdfData,
+          headers: {
+            'Content-Type': 'application/pdf'
+          }
+        })
+          .then(response => response.blob())
+          .then(blob => {
+            const unlockedPdfUrl = URL.createObjectURL(blob);
+            const downloadLink = document.getElementById('download-link');
+            downloadLink.href = unlockedPdfUrl;
+            downloadLink.download = 'unlocked.pdf';
+            downloadLink.style.display = 'block';
+          })
+          .catch(error => {
+            console.error('Error unlocking PDF:', error);
+            alert('Failed to unlock PDF. Please try again.');
+          });
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  </script>
+</body>
+
+</html>n"

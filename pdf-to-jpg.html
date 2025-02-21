@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Your one-stop destination for free online tools. Compress images, convert PDFs, and more!">
+  <meta name="keywords" content="online tools, image tools, PDF tools, compress images, convert PDFs">
+  <meta name="author" content="Your Name">
+  <title>Online Tools - Free Image & PDF Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-6 shadow-md text-center">
+    <h1 class="text-4xl font-bold">Online Tools</h1>
+    <p class="text-lg">Your one-stop destination for free online tools</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- PDF to JPG Converter Tool -->
+    <section class="bg-white p-6 rounded-lg shadow-md text-center mb-8">
+      <h2 class="text-3xl font-semibold text-green-600">Convert PDF to JPG</h2>
+      <label for="pdf-input"
+        class="cursor-pointer bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Upload
+        PDF</label>
+      <input type="file" id="pdf-input" accept="application/pdf" class="hidden">
+      <div id="pdf-list" class="mt-4"></div>
+      <button id="convert-btn"
+        class="bg-blue-500 text-white px-6 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Convert
+        to JPG</button>
+      <div id="image-list" class="mt-4"></div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white text-center py-6 mt-8">
+    <p>&copy; 2023 Online Tools. All rights reserved.</p>
+  </footer>
+
+  <script>
+    document.getElementById('pdf-input').addEventListener('change', function () {
+      const pdfList = document.getElementById('pdf-list');
+      pdfList.innerHTML = '';
+      for (const file of this.files) {
+        const listItem = document.createElement('div');
+        listItem.textContent = file.name;
+        listItem.className = 'mt-2';
+        pdfList.appendChild(listItem);
+      }
+    });
+
+    document.getElementById('convert-btn').addEventListener('click', async function () {
+      const fileInput = document.getElementById('pdf-input');
+      if (fileInput.files.length === 0) {
+        alert('Please select a PDF to convert.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const imageList = document.getElementById('image-list');
+      imageList.innerHTML = '';
+
+      for (let i = 0; i < pdf.numPages; i++) {
+        const page = await pdf.getPage(i + 1);
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+        const img = document.createElement('img');
+        img.src = canvas.toDataURL('image/jpeg');
+        img.className = 'mt-4';
+        imageList.appendChild(img);
+
+        const downloadBtn = document.createElement('a');
+        downloadBtn.href = img.src;
+        downloadBtn.download = `page-${i + 1}.jpg`;
+        downloadBtn.textContent = 'Download';
+        downloadBtn.className = 'bg-blue-500 text-white px-4 py-2 rounded-lg mt-2 inline-block hover:bg-blue-700 transition';
+        imageList.appendChild(downloadBtn);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.className = 'bg-red-500 text-white px-4 py-2 rounded-lg mt-2 inline-block hover:bg-red-700 transition ml-2';
+        deleteBtn.addEventListener('click', function () {
+          img.remove();
+          downloadBtn.remove();
+          deleteBtn.remove();
+        });
+        imageList.appendChild(deleteBtn);
+      }
+    });
+  </script>
+</body>
+
+</html>
