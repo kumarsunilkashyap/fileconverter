@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="Your one-stop destination for free online tools. Compress images, convert PDFs, and more!">
+  <meta name="keywords" content="online tools, image tools, PDF tools, compress images, convert PDFs">
+  <meta name="author" content="Your Name">
+  <title>Online Tools - Free Image & PDF Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+  <!-- Header -->
+  <header class="bg-green-600 text-white py-6 shadow-md text-center">
+    <h1 class="text-4xl font-bold">Online Tools</h1>
+    <p class="text-lg">Your one-stop destination for free online tools</p>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Image Cropping Tool -->
+    <section class="bg-white p-6 rounded-lg shadow-md text-center mb-8">
+      <h2 class="text-3xl font-semibold text-green-600">Crop Your Image</h2>
+      <label for="image-input"
+        class="cursor-pointer bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Upload
+        Image</label>
+      <input type="file" id="image-input" accept="image/*" class="hidden">
+      <div id="image-preview" class="mt-4">
+        <img id="image" style="max-width: 100%;" />
+      </div>
+      <button id="crop-btn" class="bg-blue-500 text-white px-6 py-2 rounded-lg mt-4 hover:bg-blue-700 transition">Crop
+        Image</button>
+      <div id="cropped-container" class="mt-4"></div>
+      <a id="download-link" style="display:none;"
+        class="bg-green-500 text-white px-6 py-2 rounded-lg mt-4 inline-block hover:bg-green-700 transition">Download
+        Cropped Image</a>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white text-center py-6 mt-8">
+    <p>&copy; 2023 Online Tools. All rights reserved.</p>
+  </footer>
+
+  <script>
+    let cropper;
+    document.getElementById('image-input').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = document.getElementById('image');
+          img.src = e.target.result;
+          if (cropper) {
+            cropper.destroy();
+          }
+          cropper = new Cropper(img, {
+            aspectRatio: 1,
+            viewMode: 1,
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    document.getElementById('crop-btn').addEventListener('click', function () {
+      if (cropper) {
+        const canvas = cropper.getCroppedCanvas();
+        canvas.toBlob(function (blob) {
+          const croppedImageUrl = URL.createObjectURL(blob);
+          const croppedContainer = document.getElementById('cropped-container');
+          croppedContainer.innerHTML = `<img src="${croppedImageUrl}" alt="Cropped Image" class="mt-4 mx-auto rounded-lg shadow-md">`;
+
+          const downloadLink = document.getElementById('download-link');
+          downloadLink.href = croppedImageUrl;
+          downloadLink.download = 'cropped-image.png';
+          downloadLink.style.display = 'block';
+        }, 'image/png');
+      }
+    });
+  </script>
+</body>
+
+</html>
